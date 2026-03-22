@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.env
+
+# Data (large CSVs from Rapido dataset)
+data/*.csv
+data/*.xlsx
+
+# Models and cache
+*.pkl
+*.joblib
+models/*.pkl
+
+# SQL databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter
+notebooks/*.ipynb_checkpoints
+notebooks/*~
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
