@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Rapido: Intelligent Mobility Insights
 
 ## Overview
@@ -45,3 +46,7 @@ streamlit run app/streamlit_app.py
 - Final merged feature dataset
 - Trained models in models/
 - Interactive dashboard
+=======
+# rapido-insights
+Rapido: Intelligent Mobility Insights: Ride Patterns, Cancellations &amp; Fare Forecasting
+>>>>>>> 3a0a98c242415fd1e9f86b284cbb5173c78bc408
