@@ -1,0 +1,17 @@
+hour,is_peak_hour,is_weekend,time_bucket
+7,1,0,Morning
+8,1,0,Morning
+9,1,0,Morning
+10,0,0,Late Morning
+11,0,0,Late Morning
+12,0,0,Afternoon
+13,0,0,Afternoon
+14,0,0,Afternoon
+15,0,0,Afternoon
+16,0,0,Evening
+17,1,0,Evening
+18,1,0,Evening
+19,1,0,Evening
+20,0,0,Night
+21,0,0,Night
+22,0,0,Night

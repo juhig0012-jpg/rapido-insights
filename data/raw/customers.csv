@@ -1,0 +1,12 @@
+customer_id,customer_name,customer_rating,total_completed_rides,total_cancelled_rides,avg_monthly_spend,preferred_vehicle
+C001,Aman,4.5,52,4,1850,Bike
+C002,Priya,4.0,31,7,1320,Auto
+C003,Rohit,4.2,40,6,1540,Auto
+C004,Neha,4.7,61,3,2480,Cab
+C005,Simran,4.3,22,2,980,Auto
+C006,Vikas,3.9,15,5,760,Bike
+C007,Anjali,4.4,28,1,1190,Auto
+C008,Karan,3.8,17,6,890,Cab
+C009,Meera,4.6,47,2,2010,Cab
+C010,Arjun,4.1,26,3,1110,Bike
+C011,Sana,4.5,33,2,1360,Bike

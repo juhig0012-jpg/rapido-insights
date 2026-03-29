@@ -1,0 +1,16 @@
+booking_id,customer_id,driver_id,booking_time,pickup_location,drop_location,city,vehicle_type,payment_method,distance_km,trip_duration_min,base_fare,surge_multiplier,traffic_level,weather_condition,ride_status,cancelled_by,driver_delay_min
+B001,C001,D001,2026-03-01 08:15:00,Connaught Place,Karol Bagh,Delhi,Bike,UPI,6.5,22,95,1.2,High,Clear,Completed,None,4
+B002,C002,D002,2026-03-01 09:05:00,Saket,Hauz Khas,Delhi,Auto,Cash,4.2,18,88,1.0,Medium,Clear,Cancelled,Customer,0
+B003,C003,D003,2026-03-01 18:40:00,Dwarka,Janakpuri,Delhi,Cab,Card,11.8,35,210,1.5,High,Rain,Completed,None,8
+B004,C001,D004,2026-03-02 10:10:00,Rohini,Pitampura,Delhi,Bike,UPI,5.1,19,84,1.0,Low,Clear,Cancelled,Driver,12
+B005,C004,D001,2026-03-02 20:05:00,Noida Sector 18,Akshardham,Delhi,Cab,UPI,14.3,42,260,1.6,High,Rain,Completed,None,6
+B006,C005,D005,2026-03-03 07:50:00,Lajpat Nagar,INA,Delhi,Auto,Wallet,3.8,15,75,1.1,Medium,Cloudy,Completed,None,3
+B007,C002,D003,2026-03-03 22:15:00,Gurgaon Cyber Hub,Udyog Vihar,Delhi,Cab,Card,8.9,28,180,1.3,Medium,Clear,Completed,None,5
+B008,C006,D002,2026-03-04 17:20:00,Rajouri Garden,Subhash Nagar,Delhi,Bike,Cash,2.9,11,55,1.0,High,Cloudy,Cancelled,Customer,0
+B009,C007,D006,2026-03-04 13:00:00,Mayur Vihar,Preet Vihar,Delhi,Auto,UPI,4.7,17,82,1.0,Low,Clear,Completed,None,2
+B010,C008,D004,2026-03-05 19:30:00,CP,India Gate,Delhi,Cab,Card,7.6,25,165,1.4,High,Smog,Cancelled,Driver,15
+B011,C009,D007,2026-03-05 11:20:00,Vasant Kunj,Airport,Delhi,Cab,UPI,9.4,31,205,1.2,Medium,Clear,Completed,None,4
+B012,C010,D008,2026-03-06 08:45:00,Burari,Civil Lines,Delhi,Bike,Cash,7.1,24,102,1.1,High,Cloudy,Completed,None,5
+B013,C003,D002,2026-03-06 21:10:00,Hauz Khas,Malviya Nagar,Delhi,Auto,UPI,3.5,14,70,1.0,Medium,Clear,Cancelled,Customer,0
+B014,C004,D009,2026-03-07 16:25:00,Okhla,Nehru Place,Delhi,Cab,Wallet,6.2,23,148,1.2,Medium,Cloudy,Completed,None,3
+B015,C011,D010,2026-03-07 09:50:00,Kashmere Gate,Red Fort,Delhi,Bike,UPI,4.0,16,68,1.0,High,Clear,Completed,None,4

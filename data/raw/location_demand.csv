@@ -1,0 +1,16 @@
+pickup_location,drop_location,demand_index,avg_eta_min,zone_type
+Connaught Place,Karol Bagh,82,6,Commercial
+Saket,Hauz Khas,74,5,Residential
+Dwarka,Janakpuri,69,7,Residential
+Rohini,Pitampura,63,6,Residential
+Noida Sector 18,Akshardham,88,8,Commercial
+Lajpat Nagar,INA,71,5,Commercial
+Gurgaon Cyber Hub,Udyog Vihar,85,6,Commercial
+Rajouri Garden,Subhash Nagar,58,5,Residential
+Mayur Vihar,Preet Vihar,60,5,Residential
+CP,India Gate,90,7,Tourist
+Vasant Kunj,Airport,84,9,Transit
+Burari,Civil Lines,57,8,Residential
+Hauz Khas,Malviya Nagar,67,5,Residential
+Okhla,Nehru Place,79,6,Commercial
+Kashmere Gate,Red Fort,73,6,Tourist
