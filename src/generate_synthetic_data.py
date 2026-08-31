@@ -1,18 +1,12 @@
-"""Generates a larger, realistic set of raw CSVs in the shape the rest of
-the pipeline expects (bookings/customers/drivers/location_demand/time_features).
+"""Generates a larger, realistic set of raw CSVs in the shape the pipeline
+expects (bookings/customers/drivers/location_demand/time_features).
 
-Why this exists: the dataset that shipped with this project had the right
-columns for every downstream model (fare, surge, traffic, weather, driver
-delay, cancellation reason) but only 15 booking rows - nowhere near enough
-to train anything or trust a reported accuracy/RMSE number. There's also a
-much larger `data/raw/rides_data.csv` (50k rows) sitting in the repo, but
-it's a different dataset entirely - no customer/driver IDs, no traffic or
-weather columns, no surge multiplier - so it can't answer three of the four
-questions this project needs (it's fine for ride-outcome/fare trends in
-isolation, but not for anything customer- or driver-specific). Rather than
-force that file into a schema it doesn't have the columns for, this script
-generates a synthetic sample *in the schema the project actually needs*,
-scaled up enough for the models and metrics to mean something.
+The original dataset only had 15 booking rows - not enough to train
+anything or trust an accuracy/RMSE number. `data/raw/rides_data.csv` (50k
+rows) is bigger but a different schema entirely (no customer/driver IDs,
+no traffic/weather, no surge), so it can't cover the customer/driver
+questions this project needs. Hence: synthetic data in the right schema,
+scaled up.
 
 Run directly:
     python src/generate_synthetic_data.py
@@ -55,9 +49,7 @@ PER_KM_BY_VEHICLE = {"Bike": 6, "Auto": 9, "Cab": 14}
 
 
 def _make_time_features():
-    """Fixed hour -> peak/time-bucket lookup table. Small on purpose - this
-    is a dimension table (24 possible hours), not a fact table, so it
-    doesn't need scaling up like bookings/customers/drivers do."""
+    # only 24 possible hours, no need to scale this one up like the others
     rows = []
     for hour in range(24):
         is_peak = int(hour in (7, 8, 9, 17, 18, 19))
@@ -79,11 +71,9 @@ def _make_customers(rng):
     rows = []
     for i in range(1, N_CUSTOMERS + 1):
         completed = int(rng.integers(2, 300))
-        # each customer has a persistent "flakiness" trait, drawn from a
-        # right-skewed distribution so most customers rarely cancel but a
-        # meaningful minority cancel often - a tight, low-variance rate here
-        # would make customer_cancellation_rate nearly identical for every
-        # outcome, giving the cancellation-risk model nothing to learn from
+        # beta(2,14): most customers rarely cancel, a minority cancel a lot -
+        # need that spread or cancellation_rate ends up ~constant and useless
+        # as a feature
         cancel_rate = np.clip(rng.beta(2, 14), 0.0, 0.6)
         cancelled = int(round(completed * cancel_rate / max(1 - cancel_rate, 0.01)))
         rating = np.clip(rng.normal(4.3 - cancel_rate, 0.3), 1.0, 5.0)
@@ -104,8 +94,7 @@ def _make_drivers(rng):
     for i in range(1, N_DRIVERS + 1):
         completed = int(rng.integers(20, 800))
         acceptance = np.clip(rng.normal(0.90, 0.08), 0.4, 1.0)
-        # low acceptance rate tends to go with more delay - gives
-        # driver_reliability_score real predictive signal
+        # tie delay to acceptance so reliability_score has something to predict
         avg_delay = np.clip(rng.normal(8 - acceptance * 6, 3), 0, 30)
         cancelled = int(rng.integers(0, max(int(completed * 0.15), 1)))
         rating = np.clip(rng.normal(4.5 - avg_delay / 25, 0.25), 1.0, 5.0)
@@ -146,9 +135,8 @@ def _make_location_demand(rng):
 def _make_bookings(rng, customers, drivers, location_demand):
     customer_ids = customers["customer_id"].tolist()
     driver_ids = drivers["driver_id"].tolist()
-    # weight booking assignment by each customer/driver's ride volume, so the
-    # historical-rate features computed later aren't dominated by customers
-    # who only appear once or twice
+    # weight by ride volume so the historical-rate features aren't dominated
+    # by customers who show up once or twice
     customer_weights = (customers["total_completed_rides"] + 1).to_numpy()
     customer_weights = customer_weights / customer_weights.sum()
     driver_weights = (drivers["total_completed_rides"] + 1).to_numpy()
@@ -195,9 +183,7 @@ def _make_bookings(rng, customers, drivers, location_demand):
         customer_row = customers.loc[customers["customer_id"] == customer_id].iloc[0]
         driver_row = drivers.loc[drivers["driver_id"] == driver_id].iloc[0]
 
-        # cancellation/delay probability is driven by the same signals a real
-        # platform would see: bad weather + high traffic + a driver who's
-        # historically unreliable + a customer who cancels a lot
+        # cancel/delay odds driven by weather, traffic, driver history, customer history
         customer_hist_cancel_rate = customer_row["total_cancelled_rides"] / max(
             customer_row["total_completed_rides"] + customer_row["total_cancelled_rides"], 1
         )
@@ -250,8 +236,7 @@ def _make_bookings(rng, customers, drivers, location_demand):
 
 
 def generate_all():
-    """Builds every raw CSV and writes it to data/raw/, overwriting the
-    small starter files that shipped with the project."""
+    # overwrites the small starter CSVs the project shipped with
     rng = np.random.default_rng(RNG_SEED)
     ensure_dirs()
 

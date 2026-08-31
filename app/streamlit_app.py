@@ -3,8 +3,8 @@
 Run with:
     streamlit run app/streamlit_app.py
 
-Expects data/processed/final_merged_data.csv and the four models in
-models/ to already exist (run the src/ pipeline first - see README.md).
+Needs final_merged_data.csv and the four trained models to already exist -
+run the src/ pipeline first (see README.md).
 """
 
 import json
@@ -50,11 +50,8 @@ def load_metrics():
 
 
 def build_template_row(df, overrides):
-    """Starts from a real booking (so every column the models expect is
-    present with a sensible value) and overwrites just the fields the user
-    actually controls in the UI - far less fragile than hand-typing a
-    50-column dict that has to be kept in sync with feature_engineering.py
-    by hand every time a feature is added or renamed."""
+    # grab a real row so every column the model expects is already present,
+    # then just override what the user picked in the UI
     row = df.iloc[[0]].copy()
     for col, value in overrides.items():
         row[col] = value

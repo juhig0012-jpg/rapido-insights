@@ -1,9 +1,8 @@
-"""Cleans the five raw CSVs (bookings/customers/drivers/location_demand/
-time_features) and writes a `_cleaned.csv` version of each into
-data/processed/.
+"""Cleans the five raw CSVs and writes a `_cleaned.csv` version of each
+into data/processed/.
 
-Run after generate_synthetic_data.py (or with your own raw CSVs dropped
-into data/raw/ in the same schema):
+Run after generate_synthetic_data.py (or with your own raw CSVs in
+data/raw/, same schema):
     python src/data_cleaning.py
 """
 
@@ -22,9 +21,8 @@ RAW_FILES = [
 
 
 def clean_columns(df):
-    """lowercase_with_underscores column names, stripped of anything that
-    isn't a letter/number/underscore (guards against stray BOM characters
-    or punctuation sneaking in from an Excel export)."""
+    # lowercase_with_underscores, strip anything but letters/digits/underscore
+    # (Excel exports like to sneak in a BOM or stray punctuation)
     df.columns = (
         df.columns.str.strip()
         .str.lower()
@@ -35,11 +33,8 @@ def clean_columns(df):
 
 
 def fill_missing(df):
-    """Object columns get an explicit "Unknown" instead of staying null (so
-    a missing category doesn't silently vanish from a groupby or a one-hot
-    encoder); numeric columns get the column's own median, which is a
-    reasonable stand-in for the handful of missing values this dataset
-    actually has and won't blow up outliers the way a mean would."""
+    # numeric -> median (robust to outliers), text -> "Unknown" so it doesn't
+    # just vanish from a groupby/one-hot
     for col in df.columns:
         if pd.api.types.is_numeric_dtype(df[col]):
             df[col] = df[col].fillna(df[col].median())
@@ -49,11 +44,8 @@ def fill_missing(df):
 
 
 def parse_datetime_columns(df):
-    """Any column with "time" or "date" in its name gets a shot at
-    pd.to_datetime - wrapped in try/except because a couple of columns in
-    this dataset (e.g. trip_duration_min) happen to contain "time"-ish
-    substrings without actually holding date data, and should just be left
-    alone rather than crash the whole cleaning run."""
+    # any column with "time"/"date" in the name gets tried as a datetime.
+    # trip_duration_min matches too but isn't a real date, hence the try/except
     for col in df.columns:
         if "time" in col or "date" in col:
             try:
@@ -64,9 +56,7 @@ def parse_datetime_columns(df):
 
 
 def standardize_status(df):
-    """Title-cases the two free-text status columns so "completed",
-    "Completed", and "COMPLETED" don't end up as three different
-    categories to a model or a groupby."""
+    # title-case so "completed"/"Completed"/"COMPLETED" aren't 3 categories
     if "ride_status" in df.columns:
         df["ride_status"] = df["ride_status"].astype(str).str.strip().str.title()
     if "cancelled_by" in df.columns:
@@ -75,9 +65,7 @@ def standardize_status(df):
 
 
 def basic_numeric_clean(df):
-    """Divide-by-zero and similar edge cases upstream can leave literal
-    inf/-inf values in a numeric column - fill_missing() only catches NaN,
-    so this runs first to turn infinities into NaN as well."""
+    # turn inf/-inf into NaN first, fill_missing() only handles NaN
     num_cols = df.select_dtypes(include=[np.number]).columns
     for col in num_cols:
         df[col] = df[col].replace([np.inf, -np.inf], np.nan)
@@ -85,8 +73,6 @@ def basic_numeric_clean(df):
 
 
 def clean_file(filename):
-    """Runs one raw CSV through the full cleaning sequence and writes the
-    result to data/processed/<name>_cleaned.csv."""
     df = load_csv(filename)
     before_rows = len(df)
 

@@ -9,8 +9,7 @@ FROM bookings
 GROUP BY hour
 ORDER BY hour;
 
--- Cancellation rate by city (the "cancellation heatmap across cities" the
--- EDA spec asks for, as a table rather than a plotted heatmap)
+-- Cancellation rate by city
 SELECT
     city,
     COUNT(*) AS total_rides,
@@ -55,8 +54,7 @@ WHERE total_completed_rides >= 20
 ORDER BY avg_delay_min DESC
 LIMIT 10;
 
--- Top 10 customers by historical cancellation rate, among customers with
--- at least 10 recorded rides
+-- Top 10 customers by cancellation rate (min 10 rides)
 SELECT
     customer_id, customer_name, customer_rating,
     total_completed_rides, total_cancelled_rides,

@@ -1,12 +1,8 @@
 """Loads the four trained models and exposes one predict_* function per
-model. Each function expects a single-row DataFrame shaped like
-final_merged_data.csv (minus the target columns) - the Streamlit app builds
-that row by taking a real record as a template and overriding whichever
-fields the user changed in the UI, which is far less fragile than hand-typing
-every column name here.
+model. Each expects a single-row DataFrame shaped like final_merged_data.csv
+minus the target columns.
 
-Run directly for a quick manual smoke test against a real row from the
-processed dataset:
+Run directly for a quick smoke test against a real row:
     python src/predict.py
 """
 
@@ -57,8 +53,7 @@ if __name__ == "__main__":
     df = load_csv("final_merged_data.csv", folder=PROCESSED_DIR)
     sample = df.iloc[[0]].copy()
 
-    # every model excludes all four raw target representations - none of
-    # them are legitimate input features for *any* of the four models
+    # none of these are legit features for any of the four models
     common_drop = ["ride_status", "ride_outcome_target", "cancelled_by",
                    "customer_cancel_flag", "driver_delay_flag",
                    "booking_id", "customer_id", "driver_id", "booking_time",

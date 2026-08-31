@@ -4,18 +4,16 @@ Run after feature_engineering.py:
     python src/eda.py
 
 Produces:
-    reports/eda_charts/*.png   - the charts referenced in EDA_REPORT.md
-    reports/EDA_REPORT.md       - written summary with the actual numbers
+    reports/eda_charts/*.png   - charts referenced in EDA_REPORT.md
+    reports/EDA_REPORT.md      - written summary with the actual numbers
 
-Covers the seven EDA questions from the project spec: ride volume by
-hour/weekday/city, a cancellation heatmap across cities, distance-vs-fare
-correlation, rating distributions, a customer-vs-driver cancellation
-comparison, payment method usage, and traffic/weather vs cancellation.
+Covers the seven EDA questions from the spec: ride volume by hour/weekday/
+city, cancellation heatmap across cities, distance-vs-fare correlation,
+rating distributions, customer-vs-driver cancellation, payment method
+usage, traffic/weather vs cancellation.
 
-notebooks/EDA.ipynb predates this script and isn't a real notebook (it's
-plain Python text saved with a .ipynb extension, so it doesn't even open in
-Jupyter) - this script is the actual EDA deliverable; that file is safe to
-delete once this one exists.
+(notebooks/EDA.ipynb isn't a real notebook, just plain Python text saved
+with a .ipynb extension - this script replaces it, that file can go.)
 """
 
 import os
@@ -44,9 +42,7 @@ def load_data():
 
 
 def chart_ride_volume(df):
-    """Ride volume by hour, weekday, and city - three panels in one figure
-    since they're the same underlying question (when/where does demand
-    concentrate) at three different granularities."""
+    # hour/weekday/city in one figure, all three answer "when/where is demand"
     fig, axes = plt.subplots(1, 3, figsize=(16, 4.5))
 
     by_hour = df.groupby("hour").size()
@@ -73,10 +69,7 @@ def chart_ride_volume(df):
 
 
 def chart_cancellation_heatmap(df):
-    """Cancellation rate across city x time-of-day - the "cancellation
-    heatmap across cities" the spec asks for. Rate rather than raw count,
-    since raw cancellation counts mostly just track ride volume, which
-    isn't the interesting signal here."""
+    # rate, not raw count - raw counts just track ride volume
     rate_table = (
         df.assign(is_cancelled=(df["ride_status"] == "Cancelled").astype(int))
         .pivot_table(index="city", columns="time_bucket", values="is_cancelled", aggfunc="mean")
@@ -97,8 +90,6 @@ def chart_cancellation_heatmap(df):
 
 
 def chart_distance_vs_fare(df):
-    """Distance vs fare scatter, colored by vehicle type, plus the
-    correlation coefficient printed in the report text."""
     fig, ax = plt.subplots(figsize=(7, 5.5))
     for i, (vehicle, group) in enumerate(df.groupby("vehicle_type")):
         ax.scatter(group["distance_km"], group["estimated_fare"], s=10, alpha=0.4,
@@ -130,9 +121,7 @@ def chart_rating_distribution(df):
 
 
 def chart_customer_vs_driver_cancellation(df):
-    """Among rides that were cancelled, who cancelled them - the customer
-    or the driver? A direct customer-vs-driver behavior comparison, rather
-    than two separate unrelated charts."""
+    # of the cancelled rides, who cancelled - customer or driver
     cancelled = df[df["ride_status"] == "Cancelled"]
     counts = cancelled["cancelled_by"].value_counts()
 

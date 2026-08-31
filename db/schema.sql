@@ -1,16 +1,12 @@
 -- Normalized schema for the Rapido mobility dataset.
 --
--- customers and drivers are independent dimension tables; location_demand
--- is a dimension table keyed on a pickup/drop pair; time_features is a
--- small fixed lookup table keyed on hour-of-day. bookings is the one fact
--- table, referencing all four via foreign keys instead of repeating
--- customer/driver/location attributes on every row - that repetition is
--- exactly what the raw CSVs do (every booking row carries its own copy of
--- the driver's rating, acceptance rate, etc.), which is fine for a pandas
--- pipeline but is the redundancy a normalized schema is meant to avoid.
+-- customers, drivers, location_demand are dimension tables; time_features
+-- is a small fixed lookup keyed on hour-of-day; bookings is the fact table,
+-- referencing all four by FK instead of repeating customer/driver/location
+-- columns on every row like the raw CSVs do.
 --
--- Written for SQLite (see src/load_db.py) - the same DDL runs on
--- Postgres/MySQL with minor type-name changes (TEXT -> VARCHAR, etc.).
+-- Written for SQLite (see src/load_db.py). Should run on Postgres/MySQL
+-- with minor type changes (TEXT -> VARCHAR etc).
 
 CREATE TABLE IF NOT EXISTS customers (
     customer_id            TEXT PRIMARY KEY,
@@ -72,9 +68,7 @@ CREATE TABLE IF NOT EXISTS bookings (
         REFERENCES location_demand(pickup_location, drop_location)
 );
 
--- Indexes on the columns the dashboard and EDA queries actually filter or
--- group by - customer/driver lookups, city-level aggregation, and the
--- ride_status breakdown used on almost every page of the Streamlit app.
+-- indexes for the columns the dashboard/EDA queries filter or group by
 CREATE INDEX IF NOT EXISTS idx_bookings_customer_id ON bookings(customer_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_driver_id ON bookings(driver_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_city ON bookings(city);

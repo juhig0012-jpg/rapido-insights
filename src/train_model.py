@@ -1,7 +1,5 @@
 """Trains the four models the project spec asks for and writes a persisted
-evaluation report so the accuracy/RMSE numbers can actually be checked
-against the target benchmarks later, instead of only ever appearing once
-in a terminal that's already scrolled past.
+evaluation report (metrics used to just print to the terminal and vanish).
 
 Run after feature_engineering.py:
     python src/train_model.py
@@ -54,9 +52,7 @@ REGRESSION_RMSE_PCT_BENCHMARK = 0.10  # RMSE must be within +/-10% of mean fare
 
 
 def build_preprocessor(X):
-    """One-hot encodes categorical columns, median-imputes and scales
-    numeric ones. Shared by every model so a change here (say, a different
-    imputation strategy) applies consistently across all four."""
+    # shared by all four models: one-hot for categoricals, median-impute + scale for numeric
     num_cols = X.select_dtypes(include="number").columns.tolist()
     cat_cols = [c for c in X.columns if c not in num_cols]
 
@@ -73,8 +69,6 @@ def build_preprocessor(X):
 
 
 def split_xy(df, target_col, extra_drop):
-    """Builds X/y for one model: drop everything in ALWAYS_DROP plus this
-    model's own extra leak columns, and set aside the target column."""
     drop_cols = set(ALWAYS_DROP) | set(extra_drop) | {target_col}
     X = df.drop(columns=[c for c in drop_cols if c in df.columns])
     y = df[target_col]
@@ -82,14 +76,9 @@ def split_xy(df, target_col, extra_drop):
 
 
 def tune_classifier(X_train, y_train):
-    """Small GridSearchCV sweep over the two hyperparameters that matter
-    most for a RandomForest on a dataset this size - kept small (4
-    combinations x 3 folds) so tuning finishes in seconds rather than
-    minutes."""
-    # class_weight="balanced" matters here - cancellations and delays are
-    # both minority outcomes (roughly 1-in-10), and without it the model
-    # just learns to always predict the majority class and still scores a
-    # deceptively high accuracy while missing every positive case
+    # class_weight="balanced" matters - cancel/delay are ~1-in-10 minority
+    # classes, without it the model just predicts the majority class and
+    # still looks accurate
     pipeline = Pipeline([
         ("preprocessor", build_preprocessor(X_train)),
         ("classifier", RandomForestClassifier(random_state=42, class_weight="balanced")),
@@ -104,11 +93,8 @@ def tune_classifier(X_train, y_train):
 
 
 def tune_regressor(X_train, y_train):
-    """Same idea for the fare model, but with XGBoost instead of
-    RandomForest - fare is a smooth numeric target with real linear
-    structure (distance/duration/surge all combine roughly additively into
-    price), which gradient boosting tends to fit a bit more precisely than
-    bagged trees."""
+    # XGBoost here instead of RandomForest - fare is fairly linear in its
+    # inputs and boosting tends to fit that a bit tighter
     pipeline = Pipeline([
         ("preprocessor", build_preprocessor(X_train)),
         ("regressor", XGBRegressor(random_state=42, n_jobs=-1)),
@@ -134,9 +120,7 @@ def evaluate_classifier(name, model, X_test, y_test, class_names):
         else:
             auc = roc_auc_score(y_test, proba, multi_class="ovr")
     except ValueError:
-        # AUC is undefined if the test split ends up missing a class -
-        # shouldn't happen with stratified splits, but better to report
-        # "not available" than crash the whole training run over it
+        # can happen if the test split is missing a class - report n/a instead of crashing
         auc = None
 
     report = classification_report(
@@ -184,11 +168,8 @@ def evaluate_regressor(name, model, X_test, y_test):
 
 
 def train_ride_outcome_model(df):
-    # ride_status and cancelled_by are the same information as the target
-    # under a different name (ride_outcome_target is a direct copy of
-    # ride_status) - leaving either in X lets the model "predict" by just
-    # reading its own answer back, which is how an earlier version of this
-    # function ended up with a suspicious 100% test accuracy
+    # ride_outcome_target is just a copy of ride_status - leaving either in X
+    # is why an earlier version of this got a suspicious 100% test accuracy
     X, y = split_xy(
         df, "ride_outcome_target",
         extra_drop=["ride_status", "cancelled_by", "customer_cancel_flag", "driver_delay_flag"],
@@ -248,13 +229,8 @@ def train_customer_cancel_model(df):
 
 
 def train_driver_delay_model(df):
-    """The model the spec asked for that was never actually built - predicts
-    whether a driver is likely to cause a delay (driver_delay_min >= 10,
-    computed in feature_engineering.py) using their historical
-    reliability/acceptance behavior and this trip's traffic exposure.
-    driver_delay_min itself is excluded from the inputs since it's exactly
-    what the target is thresholded from - leaving it in would let the model
-    "predict" its own label."""
+    # driver_delay_min has to be dropped from X - the target is just a
+    # threshold on it, so leaving it in is another free label leak
     X, y = split_xy(
         df, "driver_delay_flag",
         extra_drop=["ride_status", "ride_outcome_target", "cancelled_by",
@@ -276,9 +252,7 @@ def train_driver_delay_model(df):
 
 
 def write_metrics_report(all_metrics):
-    """Saves the metrics both as JSON (for the Streamlit dashboard or any
-    future script to read back) and as a short Markdown write-up (for a
-    human skimming the repo)."""
+    # JSON for the dashboard to read back, markdown for a human skimming the repo
     with open(f"{REPORTS_DIR}/model_metrics.json", "w", encoding="utf-8") as f:
         json.dump(all_metrics, f, indent=2)
 

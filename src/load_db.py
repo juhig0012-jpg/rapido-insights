@@ -1,11 +1,7 @@
-"""Loads the cleaned CSVs into a local SQLite database using db/schema.sql,
-so the "data management using SQL" side of this project is a real,
-runnable database rather than just flat files.
+"""Loads the cleaned CSVs into a local SQLite database using db/schema.sql.
 
-SQLite (not Postgres/MySQL) on purpose - it's a single file, needs no server
-to install or credentials to configure, and the DDL in db/schema.sql is
-plain enough to run unchanged on a real server database later if this
-project ever needs one.
+SQLite because it's a single file with no server/credentials to set up -
+the DDL should port to Postgres/MySQL later without much trouble.
 
 Run after data_cleaning.py:
     python src/load_db.py
@@ -57,9 +53,7 @@ def build_schema(conn):
 
 
 def load_table(conn, table_name, csv_filename, columns):
-    """Loads one cleaned CSV into its matching table. Deletes any existing
-    rows first so re-running this script is idempotent (rerunning the
-    pipeline shouldn't leave duplicate copies of every booking behind)."""
+    # delete existing rows first so reruns don't duplicate everything
     df = load_csv(csv_filename, folder=PROCESSED_DIR)[columns]
     try:
         conn.execute(f"DELETE FROM {table_name}")
@@ -75,10 +69,7 @@ def main():
     conn.execute("PRAGMA foreign_keys = ON")
     try:
         build_schema(conn)
-        # bookings references customers/drivers/location_demand via foreign
-        # keys, so those three (plus the independent time_features table)
-        # need to load first or every booking insert would fail the
-        # foreign-key check
+        # order matters - bookings has FKs into the other three tables
         for table_name, csv_filename, columns in TABLE_SOURCES:
             load_table(conn, table_name, csv_filename, columns)
         conn.commit()

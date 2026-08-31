@@ -1,7 +1,6 @@
 """Merges the five cleaned tables into one modeling dataset and derives the
-features every model downstream trains on (fare ratios, rush-hour/long-
-distance flags, City_Pair, reliability/loyalty scores, and the three model
-targets).
+features the models train on (fare ratios, rush-hour/long-distance flags,
+city_pair, reliability/loyalty scores, and the model targets).
 
 Run after data_cleaning.py:
     python src/feature_engineering.py
@@ -16,7 +15,6 @@ from utils import PROCESSED_DIR, ensure_dirs, load_csv, save_csv
 
 
 def load_cleaned_tables():
-    """Loads the five _cleaned.csv files produced by data_cleaning.py."""
     return {
         "bookings": load_csv("bookings_cleaned.csv", folder=PROCESSED_DIR),
         "customers": load_csv("customers_cleaned.csv", folder=PROCESSED_DIR),
@@ -27,8 +25,7 @@ def load_cleaned_tables():
 
 
 def add_time_parts(bookings):
-    """Breaks booking_time into hour/day-of-week/weekend flag - the raw
-    timestamp itself isn't useful to a tree model, but its components are."""
+    # break the timestamp into parts a tree model can actually use
     bookings["booking_time"] = pd.to_datetime(bookings["booking_time"], errors="coerce")
     bookings["hour"] = bookings["booking_time"].dt.hour
     bookings["day_of_week"] = bookings["booking_time"].dt.day_name()
@@ -37,11 +34,8 @@ def add_time_parts(bookings):
 
 
 def merge_tables(tables):
-    """Left-joins customer, driver, location, and time-bucket detail onto
-    every booking row. Left joins throughout because every booking should
-    survive even if, say, a pickup/drop pair has no entry in
-    location_demand - we'd rather have a row with some missing columns than
-    silently lose the booking."""
+    # left joins throughout - a booking should survive even if e.g. its
+    # pickup/drop pair has no location_demand entry
     bookings = add_time_parts(tables["bookings"])
 
     df = bookings.merge(tables["customers"], on="customer_id", how="left", suffixes=("", "_customer"))
@@ -49,14 +43,12 @@ def merge_tables(tables):
     df = df.merge(tables["location"], on=["pickup_location", "drop_location"], how="left")
     df = df.merge(tables["time"], on="hour", how="left")
 
-    # bookings and the time-features table both have an is_weekend column;
-    # the merge suffixes them into is_weekend_x/_y - keep the real one from
-    # bookings (time-features' copy is a placeholder, always 0)
+    # both bookings and time_features have is_weekend -> suffixed to _x/_y,
+    # keep bookings' version (time_features' copy is just a placeholder 0)
     if "is_weekend_x" in df.columns:
         df["is_weekend"] = df["is_weekend_x"]
     df = df.drop(columns=[c for c in ("is_weekend_x", "is_weekend_y") if c in df.columns])
 
-    # names are useful for a human reading the dashboard, not for a model
     df = df.drop(columns=[c for c in ("customer_name", "driver_name") if c in df.columns])
 
     return df
@@ -81,11 +73,7 @@ def add_trip_flags(df):
 
 
 def add_reliability_scores(df):
-    """Historical cancellation rates and the two composite scores the spec
-    asks for (Driver_Reliability_Score, Customer_Loyalty_Score). Weights
-    below are a judgment call, not derived from anything - rating counts
-    for 40%, behavior (acceptance/completed-ride volume) for 40%, and
-    delay/cancellation history for the remaining 20%."""
+    # weights below (40/40/20) are a judgment call, not fitted to anything
     df["customer_cancellation_rate"] = (
         df["total_cancelled_rides"]
         / (df["total_completed_rides"] + df["total_cancelled_rides"]).replace(0, np.nan)
@@ -112,7 +100,6 @@ def add_reliability_scores(df):
 
 
 def add_model_targets(df):
-    """The three (soon four) labels the training scripts predict."""
     df["ride_outcome_target"] = df["ride_status"]
     df["customer_cancel_flag"] = (df["cancelled_by"] == "Customer").astype(int)
     df["driver_delay_flag"] = (df["driver_delay_min"] >= 10).astype(int)
@@ -120,9 +107,7 @@ def add_model_targets(df):
 
 
 def final_cleanup(df):
-    """One more missing-value pass after all the merges/derived columns -
-    a left join can introduce fresh NaNs (e.g. a location pair with no
-    demand-table entry) that didn't exist in any single source table."""
+    # left joins can introduce new NaNs that weren't in any source table
     for col in df.columns:
         is_text = not pd.api.types.is_numeric_dtype(df[col]) and not pd.api.types.is_datetime64_any_dtype(df[col])
         if is_text:
