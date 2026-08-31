@@ -52,11 +52,16 @@ def build_schema(conn):
         raise RuntimeError(f"Failed to apply {SCHEMA_PATH}: {exc}") from exc
 
 
-def load_table(conn, table_name, csv_filename, columns):
-    # delete existing rows first so reruns don't duplicate everything
-    df = load_csv(csv_filename, folder=PROCESSED_DIR)[columns]
+def clear_table(conn, table_name):
     try:
         conn.execute(f"DELETE FROM {table_name}")
+    except sqlite3.Error as exc:
+        raise RuntimeError(f"Failed to clear {table_name}: {exc}") from exc
+
+
+def insert_table(conn, table_name, csv_filename, columns):
+    df = load_csv(csv_filename, folder=PROCESSED_DIR)[columns]
+    try:
         df.to_sql(table_name, conn, if_exists="append", index=False)
     except sqlite3.Error as exc:
         raise RuntimeError(f"Failed to load {csv_filename} into {table_name}: {exc}") from exc
@@ -69,9 +74,14 @@ def main():
     conn.execute("PRAGMA foreign_keys = ON")
     try:
         build_schema(conn)
-        # order matters - bookings has FKs into the other three tables
+        # on a rerun, bookings already has rows referencing customers/drivers/
+        # location_demand - deleting those parent tables first (in TABLE_SOURCES
+        # order) trips the FK check before bookings itself gets cleared. so:
+        # clear everything child-first (reverse order), then reinsert parent-first
+        for table_name, _, _ in reversed(TABLE_SOURCES):
+            clear_table(conn, table_name)
         for table_name, csv_filename, columns in TABLE_SOURCES:
-            load_table(conn, table_name, csv_filename, columns)
+            insert_table(conn, table_name, csv_filename, columns)
         conn.commit()
         print(f"\nDatabase ready: {DB_PATH}")
     except (RuntimeError, sqlite3.Error) as exc:
