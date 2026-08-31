@@ -1,16 +1,263 @@
 pickup_location,drop_location,demand_index,avg_eta_min,zone_type
-Connaught Place,Karol Bagh,82,6,Commercial
-Saket,Hauz Khas,74,5,Residential
-Dwarka,Janakpuri,69,7,Residential
-Rohini,Pitampura,63,6,Residential
-Noida Sector 18,Akshardham,88,8,Commercial
-Lajpat Nagar,INA,71,5,Commercial
-Gurgaon Cyber Hub,Udyog Vihar,85,6,Commercial
-Rajouri Garden,Subhash Nagar,58,5,Residential
-Mayur Vihar,Preet Vihar,60,5,Residential
-CP,India Gate,90,7,Tourist
-Vasant Kunj,Airport,84,9,Transit
-Burari,Civil Lines,57,8,Residential
-Hauz Khas,Malviya Nagar,67,5,Residential
-Okhla,Nehru Place,79,6,Commercial
-Kashmere Gate,Red Fort,73,6,Tourist
+Connaught Place,Karol Bagh,91,8,Tourist
+Connaught Place,Saket,88,8,Residential
+Connaught Place,Hauz Khas,79,6,Residential
+Connaught Place,Dwarka,94,6,Commercial
+Connaught Place,Janakpuri,47,9,Residential
+Connaught Place,Rohini,74,9,Tourist
+Connaught Place,Pitampura,45,7,Commercial
+Connaught Place,Lajpat Nagar,70,9,Residential
+Connaught Place,Noida Sector 18,55,5,Commercial
+Karol Bagh,Connaught Place,84,11,Residential
+Karol Bagh,Saket,73,7,Commercial
+Karol Bagh,Hauz Khas,83,6,Commercial
+Karol Bagh,Dwarka,55,5,Commercial
+Karol Bagh,Janakpuri,79,9,Commercial
+Karol Bagh,Rohini,81,10,Residential
+Karol Bagh,Pitampura,59,9,Residential
+Karol Bagh,Lajpat Nagar,68,8,Commercial
+Karol Bagh,Noida Sector 18,42,11,Commercial
+Saket,Connaught Place,60,9,Commercial
+Saket,Karol Bagh,68,5,Tourist
+Saket,Hauz Khas,69,6,Residential
+Saket,Dwarka,91,6,Residential
+Saket,Janakpuri,64,8,Commercial
+Saket,Rohini,60,10,Residential
+Saket,Pitampura,76,9,Commercial
+Saket,Lajpat Nagar,40,7,Residential
+Saket,Noida Sector 18,88,9,Residential
+Hauz Khas,Connaught Place,52,11,Residential
+Hauz Khas,Karol Bagh,55,8,Residential
+Hauz Khas,Saket,49,8,Residential
+Hauz Khas,Dwarka,47,6,Commercial
+Hauz Khas,Janakpuri,48,4,Residential
+Hauz Khas,Rohini,71,11,Residential
+Hauz Khas,Pitampura,51,3,Commercial
+Hauz Khas,Lajpat Nagar,47,3,Transit
+Hauz Khas,Noida Sector 18,59,9,Commercial
+Dwarka,Connaught Place,65,9,Transit
+Dwarka,Karol Bagh,55,11,Commercial
+Dwarka,Saket,71,11,Residential
+Dwarka,Hauz Khas,85,11,Tourist
+Dwarka,Janakpuri,68,4,Residential
+Dwarka,Rohini,66,7,Commercial
+Dwarka,Pitampura,86,11,Commercial
+Dwarka,Lajpat Nagar,80,5,Commercial
+Dwarka,Noida Sector 18,87,4,Commercial
+Janakpuri,Connaught Place,63,4,Residential
+Janakpuri,Karol Bagh,81,9,Tourist
+Janakpuri,Saket,45,6,Commercial
+Janakpuri,Hauz Khas,45,10,Commercial
+Janakpuri,Dwarka,69,7,Transit
+Janakpuri,Rohini,48,7,Tourist
+Janakpuri,Pitampura,84,10,Commercial
+Janakpuri,Lajpat Nagar,70,6,Commercial
+Janakpuri,Noida Sector 18,62,7,Residential
+Rohini,Connaught Place,61,8,Commercial
+Rohini,Karol Bagh,66,4,Commercial
+Rohini,Saket,49,6,Transit
+Rohini,Hauz Khas,43,4,Transit
+Rohini,Dwarka,53,7,Commercial
+Rohini,Janakpuri,45,4,Tourist
+Rohini,Pitampura,75,7,Transit
+Rohini,Lajpat Nagar,52,7,Commercial
+Rohini,Noida Sector 18,73,7,Residential
+Pitampura,Connaught Place,64,6,Residential
+Pitampura,Karol Bagh,62,7,Commercial
+Pitampura,Saket,59,3,Residential
+Pitampura,Hauz Khas,85,4,Residential
+Pitampura,Dwarka,85,4,Commercial
+Pitampura,Janakpuri,57,4,Transit
+Pitampura,Rohini,87,10,Residential
+Pitampura,Lajpat Nagar,46,6,Residential
+Pitampura,Noida Sector 18,74,11,Transit
+Lajpat Nagar,Connaught Place,46,3,Tourist
+Lajpat Nagar,Karol Bagh,51,11,Commercial
+Lajpat Nagar,Saket,76,3,Transit
+Lajpat Nagar,Hauz Khas,58,5,Commercial
+Lajpat Nagar,Dwarka,47,9,Residential
+Lajpat Nagar,Janakpuri,91,6,Residential
+Lajpat Nagar,Rohini,63,7,Residential
+Lajpat Nagar,Pitampura,50,6,Residential
+Lajpat Nagar,Noida Sector 18,74,11,Residential
+Noida Sector 18,Connaught Place,94,7,Residential
+Noida Sector 18,Karol Bagh,71,3,Residential
+Noida Sector 18,Saket,90,3,Residential
+Noida Sector 18,Hauz Khas,77,7,Residential
+Noida Sector 18,Dwarka,60,3,Commercial
+Noida Sector 18,Janakpuri,42,8,Commercial
+Noida Sector 18,Rohini,40,6,Residential
+Noida Sector 18,Pitampura,63,4,Residential
+Noida Sector 18,Lajpat Nagar,43,11,Commercial
+Koramangala,Indiranagar,88,11,Transit
+Koramangala,Whitefield,79,3,Commercial
+Koramangala,HSR Layout,40,5,Residential
+Koramangala,Electronic City,76,3,Residential
+Koramangala,Jayanagar,79,6,Commercial
+Koramangala,MG Road,75,9,Residential
+Koramangala,Marathahalli,91,10,Commercial
+Indiranagar,Koramangala,56,7,Residential
+Indiranagar,Whitefield,43,7,Residential
+Indiranagar,HSR Layout,62,4,Residential
+Indiranagar,Electronic City,55,5,Commercial
+Indiranagar,Jayanagar,50,11,Residential
+Indiranagar,MG Road,63,8,Residential
+Indiranagar,Marathahalli,75,5,Commercial
+Whitefield,Koramangala,92,3,Commercial
+Whitefield,Indiranagar,89,4,Tourist
+Whitefield,HSR Layout,62,5,Residential
+Whitefield,Electronic City,80,10,Transit
+Whitefield,Jayanagar,63,8,Transit
+Whitefield,MG Road,73,7,Commercial
+Whitefield,Marathahalli,61,7,Transit
+HSR Layout,Koramangala,82,8,Commercial
+HSR Layout,Indiranagar,84,4,Commercial
+HSR Layout,Whitefield,76,5,Commercial
+HSR Layout,Electronic City,69,6,Tourist
+HSR Layout,Jayanagar,89,6,Tourist
+HSR Layout,MG Road,78,4,Tourist
+HSR Layout,Marathahalli,81,7,Transit
+Electronic City,Koramangala,76,5,Residential
+Electronic City,Indiranagar,58,6,Residential
+Electronic City,Whitefield,64,11,Tourist
+Electronic City,HSR Layout,49,7,Commercial
+Electronic City,Jayanagar,76,10,Commercial
+Electronic City,MG Road,50,5,Tourist
+Electronic City,Marathahalli,46,6,Transit
+Jayanagar,Koramangala,66,11,Tourist
+Jayanagar,Indiranagar,81,4,Tourist
+Jayanagar,Whitefield,51,4,Commercial
+Jayanagar,HSR Layout,76,5,Tourist
+Jayanagar,Electronic City,84,11,Commercial
+Jayanagar,MG Road,82,6,Residential
+Jayanagar,Marathahalli,73,6,Commercial
+MG Road,Koramangala,45,3,Residential
+MG Road,Indiranagar,64,8,Commercial
+MG Road,Whitefield,43,4,Commercial
+MG Road,HSR Layout,49,6,Commercial
+MG Road,Electronic City,56,9,Residential
+MG Road,Jayanagar,65,7,Residential
+MG Road,Marathahalli,56,7,Transit
+Marathahalli,Koramangala,48,3,Commercial
+Marathahalli,Indiranagar,66,3,Residential
+Marathahalli,Whitefield,71,10,Tourist
+Marathahalli,HSR Layout,48,4,Residential
+Marathahalli,Electronic City,51,8,Residential
+Marathahalli,Jayanagar,58,9,Commercial
+Marathahalli,MG Road,64,5,Transit
+Andheri,Bandra,64,8,Commercial
+Andheri,Dadar,57,11,Residential
+Andheri,Powai,92,9,Residential
+Andheri,Borivali,72,11,Tourist
+Andheri,Chembur,57,5,Commercial
+Andheri,Colaba,88,9,Tourist
+Andheri,Malad,58,9,Commercial
+Bandra,Andheri,87,8,Residential
+Bandra,Dadar,92,5,Transit
+Bandra,Powai,78,11,Commercial
+Bandra,Borivali,72,10,Tourist
+Bandra,Chembur,63,11,Commercial
+Bandra,Colaba,42,7,Residential
+Bandra,Malad,70,10,Commercial
+Dadar,Andheri,75,9,Transit
+Dadar,Bandra,42,6,Commercial
+Dadar,Powai,47,7,Commercial
+Dadar,Borivali,46,7,Residential
+Dadar,Chembur,81,9,Transit
+Dadar,Colaba,74,6,Tourist
+Dadar,Malad,83,3,Commercial
+Powai,Andheri,68,7,Commercial
+Powai,Bandra,43,3,Residential
+Powai,Dadar,83,6,Commercial
+Powai,Borivali,94,5,Commercial
+Powai,Chembur,58,6,Commercial
+Powai,Colaba,79,8,Commercial
+Powai,Malad,62,11,Residential
+Borivali,Andheri,77,7,Residential
+Borivali,Bandra,76,7,Residential
+Borivali,Dadar,68,10,Residential
+Borivali,Powai,49,8,Commercial
+Borivali,Chembur,79,3,Residential
+Borivali,Colaba,61,7,Commercial
+Borivali,Malad,88,11,Commercial
+Chembur,Andheri,56,11,Tourist
+Chembur,Bandra,79,10,Residential
+Chembur,Dadar,59,8,Commercial
+Chembur,Powai,91,8,Transit
+Chembur,Borivali,50,9,Transit
+Chembur,Colaba,88,9,Residential
+Chembur,Malad,66,11,Commercial
+Colaba,Andheri,75,3,Tourist
+Colaba,Bandra,49,3,Residential
+Colaba,Dadar,52,3,Commercial
+Colaba,Powai,94,7,Tourist
+Colaba,Borivali,89,5,Tourist
+Colaba,Chembur,91,4,Commercial
+Colaba,Malad,76,4,Transit
+Malad,Andheri,77,4,Residential
+Malad,Bandra,86,3,Tourist
+Malad,Dadar,41,9,Commercial
+Malad,Powai,52,4,Tourist
+Malad,Borivali,69,7,Residential
+Malad,Chembur,81,9,Residential
+Malad,Colaba,43,7,Commercial
+Gachibowli,Madhapur,70,8,Residential
+Gachibowli,Banjara Hills,44,9,Residential
+Gachibowli,Kukatpally,50,11,Residential
+Gachibowli,Secunderabad,65,4,Commercial
+Gachibowli,Ameerpet,81,6,Residential
+Madhapur,Gachibowli,85,4,Residential
+Madhapur,Banjara Hills,79,8,Transit
+Madhapur,Kukatpally,92,8,Residential
+Madhapur,Secunderabad,80,11,Residential
+Madhapur,Ameerpet,65,9,Residential
+Banjara Hills,Gachibowli,78,3,Tourist
+Banjara Hills,Madhapur,66,6,Residential
+Banjara Hills,Kukatpally,65,7,Transit
+Banjara Hills,Secunderabad,74,10,Commercial
+Banjara Hills,Ameerpet,47,7,Tourist
+Kukatpally,Gachibowli,69,9,Commercial
+Kukatpally,Madhapur,65,10,Residential
+Kukatpally,Banjara Hills,93,4,Residential
+Kukatpally,Secunderabad,55,6,Tourist
+Kukatpally,Ameerpet,48,4,Residential
+Secunderabad,Gachibowli,40,10,Commercial
+Secunderabad,Madhapur,86,3,Residential
+Secunderabad,Banjara Hills,67,11,Commercial
+Secunderabad,Kukatpally,71,11,Residential
+Secunderabad,Ameerpet,63,5,Transit
+Ameerpet,Gachibowli,91,9,Tourist
+Ameerpet,Madhapur,57,6,Commercial
+Ameerpet,Banjara Hills,70,10,Tourist
+Ameerpet,Kukatpally,67,11,Tourist
+Ameerpet,Secunderabad,47,10,Commercial
+Hinjewadi,Kothrud,45,4,Transit
+Hinjewadi,Viman Nagar,67,6,Residential
+Hinjewadi,Baner,89,5,Transit
+Hinjewadi,Kharadi,93,3,Tourist
+Hinjewadi,Wakad,47,8,Commercial
+Kothrud,Hinjewadi,42,11,Residential
+Kothrud,Viman Nagar,89,11,Residential
+Kothrud,Baner,71,11,Residential
+Kothrud,Kharadi,50,3,Commercial
+Kothrud,Wakad,50,3,Residential
+Viman Nagar,Hinjewadi,68,10,Commercial
+Viman Nagar,Kothrud,51,7,Commercial
+Viman Nagar,Baner,94,7,Commercial
+Viman Nagar,Kharadi,85,7,Commercial
+Viman Nagar,Wakad,50,11,Tourist
+Baner,Hinjewadi,79,3,Commercial
+Baner,Kothrud,61,7,Residential
+Baner,Viman Nagar,82,11,Residential
+Baner,Kharadi,41,7,Commercial
+Baner,Wakad,52,5,Tourist
+Kharadi,Hinjewadi,55,3,Tourist
+Kharadi,Kothrud,64,11,Commercial
+Kharadi,Viman Nagar,41,10,Tourist
+Kharadi,Baner,72,10,Commercial
+Kharadi,Wakad,42,8,Commercial
+Wakad,Hinjewadi,84,4,Residential
+Wakad,Kothrud,57,3,Commercial
+Wakad,Viman Nagar,60,10,Tourist
+Wakad,Baner,91,3,Transit
+Wakad,Kharadi,57,3,Transit

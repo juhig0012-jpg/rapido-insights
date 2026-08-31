@@ -1,0 +1,190 @@
+[
+  {
+    "model": "Ride Outcome Model",
+    "task": "classification",
+    "accuracy": 0.6575,
+    "auc": 0.6004,
+    "confusion_matrix": [
+      [
+        81,
+        204,
+        0
+      ],
+      [
+        122,
+        707,
+        2
+      ],
+      [
+        14,
+        69,
+        1
+      ]
+    ],
+    "class_names": [
+      "Cancelled",
+      "Completed",
+      "Incomplete"
+    ],
+    "classification_report": {
+      "Cancelled": {
+        "precision": 0.37327188940092165,
+        "recall": 0.28421052631578947,
+        "f1-score": 0.32270916334661354,
+        "support": 285.0
+      },
+      "Completed": {
+        "precision": 0.7214285714285714,
+        "recall": 0.8507821901323707,
+        "f1-score": 0.7807840971838763,
+        "support": 831.0
+      },
+      "Incomplete": {
+        "precision": 0.3333333333333333,
+        "recall": 0.011904761904761904,
+        "f1-score": 0.022988505747126436,
+        "support": 84.0
+      },
+      "accuracy": 0.6575,
+      "macro avg": {
+        "precision": 0.4760112647209421,
+        "recall": 0.382299159450974,
+        "f1-score": 0.3754939220925388,
+        "support": 1200.0
+      },
+      "weighted avg": {
+        "precision": 0.6115746927803379,
+        "recall": 0.6575,
+        "f1-score": 0.6189456089969539,
+        "support": 1200.0
+      }
+    },
+    "meets_benchmark": false,
+    "benchmark": ">= 85% accuracy",
+    "best_params": {
+      "classifier__max_depth": null,
+      "classifier__n_estimators": 150
+    }
+  },
+  {
+    "model": "Fare Prediction Model",
+    "task": "regression",
+    "mae": 2.24,
+    "rmse": 9.21,
+    "rmse_pct_of_mean": 0.0575,
+    "r2": 0.9915,
+    "meets_benchmark": true,
+    "benchmark": "RMSE within 10% of mean fare",
+    "best_params": {
+      "regressor__learning_rate": 0.1,
+      "regressor__max_depth": 4,
+      "regressor__n_estimators": 400
+    }
+  },
+  {
+    "model": "Customer Cancellation Risk Model",
+    "task": "classification",
+    "accuracy": 0.825,
+    "auc": 0.61,
+    "confusion_matrix": [
+      [
+        980,
+        21
+      ],
+      [
+        189,
+        10
+      ]
+    ],
+    "class_names": [
+      "No Cancel",
+      "Cancel"
+    ],
+    "classification_report": {
+      "No Cancel": {
+        "precision": 0.8383233532934131,
+        "recall": 0.9790209790209791,
+        "f1-score": 0.9032258064516129,
+        "support": 1001.0
+      },
+      "Cancel": {
+        "precision": 0.3225806451612903,
+        "recall": 0.05025125628140704,
+        "f1-score": 0.08695652173913043,
+        "support": 199.0
+      },
+      "accuracy": 0.825,
+      "macro avg": {
+        "precision": 0.5804519992273517,
+        "recall": 0.5146361176511931,
+        "f1-score": 0.4950911640953717,
+        "support": 1200.0
+      },
+      "weighted avg": {
+        "precision": 0.7527960208615027,
+        "recall": 0.825,
+        "f1-score": 0.7678611500701262,
+        "support": 1200.0
+      }
+    },
+    "meets_benchmark": false,
+    "benchmark": ">= 85% accuracy",
+    "best_params": {
+      "classifier__max_depth": null,
+      "classifier__n_estimators": 300
+    }
+  },
+  {
+    "model": "Driver Delay Prediction Model",
+    "task": "classification",
+    "accuracy": 0.9258,
+    "auc": 0.8334,
+    "confusion_matrix": [
+      [
+        1095,
+        18
+      ],
+      [
+        71,
+        16
+      ]
+    ],
+    "class_names": [
+      "On Time",
+      "Delayed"
+    ],
+    "classification_report": {
+      "On Time": {
+        "precision": 0.9391080617495712,
+        "recall": 0.9838274932614556,
+        "f1-score": 0.9609477841158403,
+        "support": 1113.0
+      },
+      "Delayed": {
+        "precision": 0.47058823529411764,
+        "recall": 0.1839080459770115,
+        "f1-score": 0.2644628099173554,
+        "support": 87.0
+      },
+      "accuracy": 0.9258333333333333,
+      "macro avg": {
+        "precision": 0.7048481485218444,
+        "recall": 0.5838677696192336,
+        "f1-score": 0.6127052970165978,
+        "support": 1200.0
+      },
+      "weighted avg": {
+        "precision": 0.9051403743315508,
+        "recall": 0.9258333333333333,
+        "f1-score": 0.91045262348645,
+        "support": 1200.0
+      }
+    },
+    "meets_benchmark": true,
+    "benchmark": ">= 85% accuracy",
+    "best_params": {
+      "classifier__max_depth": null,
+      "classifier__n_estimators": 300
+    }
+  }
+]

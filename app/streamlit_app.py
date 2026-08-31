@@ -1,161 +1,234 @@
-import streamlit as st
-import pandas as pd
+"""Streamlit dashboard for the Rapido mobility insights project.
+
+Run with:
+    streamlit run app/streamlit_app.py
+
+Expects data/processed/final_merged_data.csv and the four models in
+models/ to already exist (run the src/ pipeline first - see README.md).
+"""
+
+import json
+
 import joblib
+import pandas as pd
+import streamlit as st
+
+CATEGORICAL_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#4a3aa7"]
+
+PREDICTION_LEAK_COLUMNS = [
+    "ride_status", "ride_outcome_target", "cancelled_by",
+    "customer_cancel_flag", "driver_delay_flag",
+    "booking_id", "customer_id", "driver_id", "booking_time",
+]
 
 st.set_page_config(page_title="Rapido Mobility Insights", layout="wide")
+
 
 @st.cache_data
 def load_data():
     return pd.read_csv("data/processed/final_merged_data.csv")
 
+
 @st.cache_resource
 def load_models():
-    ride_model = joblib.load("models/ride_outcome_model.pkl")
-    ride_le = joblib.load("models/ride_outcome_label_encoder.pkl")
-    fare_model = joblib.load("models/fare_model.pkl")
-    cancel_model = joblib.load("models/customer_cancel_model.pkl")
-    return ride_model, ride_le, fare_model, cancel_model
+    return {
+        "ride_outcome": joblib.load("models/ride_outcome_model.pkl"),
+        "ride_outcome_encoder": joblib.load("models/ride_outcome_label_encoder.pkl"),
+        "fare": joblib.load("models/fare_model.pkl"),
+        "customer_cancel": joblib.load("models/customer_cancel_model.pkl"),
+        "driver_delay": joblib.load("models/driver_delay_model.pkl"),
+    }
+
+
+@st.cache_data
+def load_metrics():
+    try:
+        with open("reports/model_metrics.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+
+
+def build_template_row(df, overrides):
+    """Starts from a real booking (so every column the models expect is
+    present with a sensible value) and overwrites just the fields the user
+    actually controls in the UI - far less fragile than hand-typing a
+    50-column dict that has to be kept in sync with feature_engineering.py
+    by hand every time a feature is added or renamed."""
+    row = df.iloc[[0]].copy()
+    for col, value in overrides.items():
+        row[col] = value
+    return row
+
+
+def prepare_for_prediction(row, extra_drop=None):
+    drop_cols = list(PREDICTION_LEAK_COLUMNS) + list(extra_drop or [])
+    return row.drop(columns=[c for c in drop_cols if c in row.columns])
+
+
+try:
+    df = load_data()
+    models = load_models()
+except FileNotFoundError as exc:
+    st.error(f"Missing a required file: {exc}")
+    st.error("Run the pipeline first: data_cleaning.py -> feature_engineering.py -> train_model.py")
+    st.stop()
+
+metrics = load_metrics()
 
 st.title("Rapido: Intelligent Mobility Insights")
 
 page = st.sidebar.selectbox(
     "Select Page",
-    ["Dashboard", "EDA", "Ride Outcome Prediction", "Fare Prediction", "Customer Risk"]
+    ["Dashboard", "EDA", "Ride Outcome Prediction", "Fare Prediction",
+     "Customer Cancellation Risk", "Driver Delay Risk"],
 )
-
-df = load_data()
-ride_model, ride_le, fare_model, cancel_model = load_models()
 
 if page == "Dashboard":
     st.subheader("Overview")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Rides", len(df))
-    col2.metric("Completed Rides", int((df["ride_status"] == "Completed").sum()))
-    col3.metric("Cancellation Rate", f"{(df['ride_status'].eq('Cancelled').mean() * 100):.2f}%")
+    col1.metric("Total Rides", f"{len(df):,}")
+    col2.metric("Completed Rides", f"{int((df['ride_status'] == 'Completed').sum()):,}")
+    col3.metric("Cancellation Rate", f"{(df['ride_status'].eq('Cancelled').mean() * 100):.1f}%")
 
     st.subheader("Ride Volume by Hour")
-    ride_by_hour = df.groupby("hour").size()
-    st.line_chart(ride_by_hour)
+    st.line_chart(df.groupby("hour").size())
 
     st.subheader("Ride Status Distribution")
     st.bar_chart(df["ride_status"].value_counts())
 
+    if metrics:
+        st.subheader("Model Performance (from reports/model_metrics.json)")
+        cols = st.columns(4)
+        for col, m in zip(cols, metrics):
+            with col:
+                if m["task"] == "classification":
+                    st.metric(m["model"], f"{m['accuracy']:.1%}", "accuracy")
+                    st.caption(f"AUC: {m['auc']:.3f}" if m["auc"] is not None else "AUC: n/a")
+                else:
+                    st.metric(m["model"], f"{m['rmse']:.2f}", "RMSE")
+                    st.caption(f"{m['rmse_pct_of_mean']:.1%} of mean fare, R2={m['r2']:.3f}")
+                st.caption("✅ meets benchmark" if m["meets_benchmark"] else "⚠️ below benchmark")
+    else:
+        st.info("Run `python src/train_model.py` to generate a model performance summary.")
+
 elif page == "EDA":
     st.subheader("Explore Data")
+    st.caption("A written EDA report with saved charts is at reports/EDA_REPORT.md "
+               "(generated by src/eda.py) - this page is for quick interactive filtering.")
     city = st.selectbox("Select city", sorted(df["city"].dropna().unique()))
     filtered = df[df["city"] == city]
 
     st.write("Filtered rows:", len(filtered))
-    st.bar_chart(filtered.groupby("hour").size())
-    st.bar_chart(filtered["vehicle_type"].value_counts())
-    st.bar_chart(filtered["payment_method"].value_counts())
+    col1, col2, col3 = st.columns(3)
+    col1.bar_chart(filtered.groupby("hour").size())
+    col2.bar_chart(filtered["vehicle_type"].value_counts())
+    col3.bar_chart(filtered["payment_method"].value_counts())
 
 elif page == "Ride Outcome Prediction":
     st.subheader("Predict Ride Outcome")
 
-    input_data = {
-        "pickup_location": st.selectbox("Pickup", sorted(df["pickup_location"].dropna().unique())),
-        "drop_location": st.selectbox("Drop", sorted(df["drop_location"].dropna().unique())),
-        "city": st.selectbox("City", sorted(df["city"].dropna().unique())),
-        "vehicle_type": st.selectbox("Vehicle Type", sorted(df["vehicle_type"].dropna().unique())),
-        "payment_method": st.selectbox("Payment Method", sorted(df["payment_method"].dropna().unique())),
-        "distance_km": st.number_input("Distance (km)", 0.1, 50.0, 5.0),
-        "trip_duration_min": st.number_input("Trip Duration (min)", 1, 180, 20),
-        "base_fare": st.number_input("Base Fare", 20, 1000, 100),
-        "surge_multiplier": st.number_input("Surge", 1.0, 3.0, 1.2),
-        "traffic_level": st.selectbox("Traffic", sorted(df["traffic_level"].dropna().unique())),
-        "weather_condition": st.selectbox("Weather", sorted(df["weather_condition"].dropna().unique())),
-        "driver_delay_min": st.number_input("Driver Delay", 0, 60, 5),
-        "hour": st.slider("Hour", 0, 23, 9),
-        "day_of_week": st.selectbox("Day", ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]),
-        "is_weekend": st.selectbox("Weekend", [0,1]),
-        "customer_rating": st.number_input("Customer Rating", 1.0, 5.0, 4.2),
-        "total_completed_rides": st.number_input("Customer Completed Rides", 0, 500, 30),
-        "total_cancelled_rides": st.number_input("Customer Cancelled Rides", 0, 100, 4),
-        "avg_monthly_spend": st.number_input("Avg Monthly Spend", 0, 10000, 1500),
-        "preferred_vehicle": st.selectbox("Preferred Vehicle", ["Bike","Auto","Cab"]),
-        "driver_rating": st.number_input("Driver Rating", 1.0, 5.0, 4.3),
-        "total_completed_rides_driver": st.number_input("Driver Completed Rides", 0, 1000, 100),
-        "total_cancelled_rides_driver": st.number_input("Driver Cancelled Rides", 0, 200, 8),
-        "acceptance_rate": st.number_input("Acceptance Rate", 0.0, 1.0, 0.90),
-        "avg_delay_min": st.number_input("Driver Avg Delay", 0, 60, 5),
-        "vehicle_type_driver": st.selectbox("Driver Vehicle Type", ["Bike","Auto","Cab"]),
-        "demand_index": st.number_input("Demand Index", 0, 100, 70),
-        "avg_eta_min": st.number_input("Avg ETA", 1, 60, 6),
-        "zone_type": st.selectbox("Zone Type", ["Residential","Commercial","Tourist","Transit"]),
-        "is_peak_hour": st.selectbox("Is Peak Hour", [0,1]),
-        "time_bucket": st.selectbox("Time Bucket", ["Morning","Late Morning","Afternoon","Evening","Night"])
-    }
-
-    estimated_fare = input_data["base_fare"] * input_data["surge_multiplier"]
-    input_data["fare_per_km"] = estimated_fare / max(input_data["distance_km"], 0.1)
-    input_data["fare_per_min"] = estimated_fare / max(input_data["trip_duration_min"], 1)
-    input_data["long_distance_flag"] = int(input_data["distance_km"] >= 5)
-    input_data["rush_hour_flag"] = input_data["is_peak_hour"]
-    input_data["customer_cancellation_rate"] = input_data["total_cancelled_rides"] / max(
-        input_data["total_completed_rides"] + input_data["total_cancelled_rides"], 1
-    )
-    input_data["driver_cancellation_rate"] = input_data["total_cancelled_rides_driver"] / max(
-        input_data["total_completed_rides_driver"] + input_data["total_cancelled_rides_driver"], 1
-    )
-    input_data["driver_reliability_score"] = (
-        (input_data["driver_rating"] * 20) * 0.4 +
-        (input_data["acceptance_rate"] * 100) * 0.4 +
-        ((1 / (1 + input_data["avg_delay_min"])) * 100) * 0.2
-    )
-    input_data["customer_loyalty_score"] = (
-        (input_data["customer_rating"] * 20) * 0.4 +
-        input_data["total_completed_rides"] * 0.4 +
-        (1 - input_data["customer_cancellation_rate"]) * 100 * 0.2
-    )
+    col1, col2 = st.columns(2)
+    with col1:
+        city = st.selectbox("City", sorted(df["city"].dropna().unique()))
+        vehicle_type = st.selectbox("Vehicle Type", sorted(df["vehicle_type"].dropna().unique()))
+        distance_km = st.number_input("Distance (km)", 0.5, 50.0, 6.0)
+        trip_duration_min = st.number_input("Trip Duration (min)", 1.0, 180.0, 20.0)
+        traffic_level = st.selectbox("Traffic", ["Low", "Medium", "High"])
+        weather_condition = st.selectbox("Weather", ["Clear", "Cloudy", "Rain", "Smog"])
+    with col2:
+        hour = st.slider("Hour", 0, 23, 9)
+        is_weekend = st.selectbox("Weekend?", [0, 1])
+        customer_cancellation_rate = st.slider("Customer's historical cancellation rate", 0.0, 1.0, 0.08)
+        driver_reliability_score = st.slider("Driver reliability score", 0.0, 100.0, 80.0)
+        surge_multiplier = st.number_input("Surge Multiplier", 1.0, 3.0, 1.2)
 
     if st.button("Predict Ride Outcome"):
-        input_df = pd.DataFrame([input_data])
-        pred = ride_model.predict(input_df)
-        label = ride_le.inverse_transform(pred)[0]
-        st.success(f"Predicted Ride Outcome: {label}")
+        row = build_template_row(df, {
+            "city": city, "vehicle_type": vehicle_type, "distance_km": distance_km,
+            "trip_duration_min": trip_duration_min, "traffic_level": traffic_level,
+            "weather_condition": weather_condition, "hour": hour, "is_weekend": is_weekend,
+            "is_peak_hour": int(hour in (7, 8, 9, 17, 18, 19)),
+            "rush_hour_flag": int(hour in (7, 8, 9, 17, 18, 19)),
+            "customer_cancellation_rate": customer_cancellation_rate,
+            "driver_reliability_score": driver_reliability_score,
+            "surge_multiplier": surge_multiplier,
+        })
+        input_df = prepare_for_prediction(row)
+        pred = models["ride_outcome"].predict(input_df)
+        label = models["ride_outcome_encoder"].inverse_transform(pred)[0]
+        st.success(f"Predicted Ride Outcome: **{label}**")
 
 elif page == "Fare Prediction":
     st.subheader("Predict Fare")
 
-    distance_km = st.number_input("Distance (km)", 0.1, 50.0, 6.0)
-    trip_duration_min = st.number_input("Trip Duration (min)", 1, 180, 20)
-    base_fare = st.number_input("Base Fare", 20, 1000, 100)
+    distance_km = st.number_input("Distance (km)", 0.5, 50.0, 6.0)
+    trip_duration_min = st.number_input("Trip Duration (min)", 1.0, 180.0, 20.0)
+    vehicle_type = st.selectbox("Vehicle Type", sorted(df["vehicle_type"].dropna().unique()))
+    base_fare = st.number_input("Base Fare", 20.0, 1000.0, 100.0)
     surge_multiplier = st.number_input("Surge Multiplier", 1.0, 3.0, 1.2)
 
-    sample = df.iloc[[0]].copy()
-    sample["distance_km"] = distance_km
-    sample["trip_duration_min"] = trip_duration_min
-    sample["base_fare"] = base_fare
-    sample["surge_multiplier"] = surge_multiplier
-    sample["fare_per_km"] = (base_fare * surge_multiplier) / max(distance_km, 0.1)
-    sample["fare_per_min"] = (base_fare * surge_multiplier) / max(trip_duration_min, 1)
-
-    drop_cols = ["estimated_fare", "ride_status", "ride_outcome_target", "cancelled_by", "booking_id", "customer_id", "driver_id", "booking_time"]
-    sample = sample.drop(columns=[c for c in drop_cols if c in sample.columns])
-
     if st.button("Predict Fare"):
-        pred = fare_model.predict(sample)[0]
+        row = build_template_row(df, {
+            "distance_km": distance_km, "trip_duration_min": trip_duration_min,
+            "vehicle_type": vehicle_type, "base_fare": base_fare,
+            "surge_multiplier": surge_multiplier,
+            "fare_per_km": (base_fare * surge_multiplier) / max(distance_km, 0.1),
+            "fare_per_min": (base_fare * surge_multiplier) / max(trip_duration_min, 1),
+        })
+        input_df = prepare_for_prediction(row, extra_drop=["estimated_fare"])
+        pred = models["fare"].predict(input_df)[0]
         st.success(f"Estimated Fare: Rs {pred:.2f}")
 
-elif page == "Customer Risk":
+elif page == "Customer Cancellation Risk":
     st.subheader("Customer Cancellation Risk")
 
-    sample = df.iloc[[0]].copy()
-    sample["total_cancelled_rides"] = st.number_input("Cancelled Rides", 0, 100, 5)
-    sample["total_completed_rides"] = st.number_input("Completed Rides", 0, 500, 30)
-    sample["customer_rating"] = st.number_input("Customer Rating", 1.0, 5.0, 4.0)
-
-    sample["customer_cancellation_rate"] = sample["total_cancelled_rides"] / (
-        sample["total_completed_rides"] + sample["total_cancelled_rides"] + 1
-    )
-
-    drop_cols = ["customer_cancel_flag", "ride_status", "ride_outcome_target", "cancelled_by", "booking_id", "customer_id", "driver_id", "booking_time"]
-    sample = sample.drop(columns=[c for c in drop_cols if c in sample.columns])
+    total_completed = st.number_input("Completed Rides", 0, 1000, 30)
+    total_cancelled = st.number_input("Cancelled Rides", 0, 200, 5)
+    customer_rating = st.number_input("Customer Rating", 1.0, 5.0, 4.0)
+    traffic_level = st.selectbox("Current Traffic", ["Low", "Medium", "High"])
+    weather_condition = st.selectbox("Current Weather", ["Clear", "Cloudy", "Rain", "Smog"])
 
     if st.button("Predict Customer Risk"):
-        pred = cancel_model.predict(sample)[0]
+        cancel_rate = total_cancelled / max(total_completed + total_cancelled, 1)
+        row = build_template_row(df, {
+            "total_completed_rides": total_completed,
+            "total_cancelled_rides": total_cancelled,
+            "customer_rating": customer_rating,
+            "customer_cancellation_rate": cancel_rate,
+            "traffic_level": traffic_level,
+            "weather_condition": weather_condition,
+        })
+        input_df = prepare_for_prediction(row)
+        pred = models["customer_cancel"].predict(input_df)[0]
+        proba = models["customer_cancel"].predict_proba(input_df)[0][1]
         if pred == 1:
-            st.warning("High chance of customer cancellation")
+            st.warning(f"High chance of customer cancellation (probability: {proba:.1%})")
         else:
-            st.success("Low chance of customer cancellation")
+            st.success(f"Low chance of customer cancellation (probability: {proba:.1%})")
+
+elif page == "Driver Delay Risk":
+    st.subheader("Driver Delay Risk")
+    st.caption("Predicts whether a driver is likely to cause a delay of 10+ minutes on this trip.")
+
+    driver_rating = st.number_input("Driver Rating", 1.0, 5.0, 4.3)
+    acceptance_rate = st.slider("Driver Acceptance Rate", 0.0, 1.0, 0.90)
+    avg_delay_min = st.number_input("Driver's Average Past Delay (min)", 0.0, 60.0, 5.0)
+    traffic_level = st.selectbox("Current Traffic", ["Low", "Medium", "High"])
+
+    if st.button("Predict Driver Delay Risk"):
+        row = build_template_row(df, {
+            "driver_rating": driver_rating,
+            "acceptance_rate": acceptance_rate,
+            "avg_delay_min": avg_delay_min,
+            "traffic_level": traffic_level,
+            "driver_reliability_score": (driver_rating * 20) * 0.4 + (acceptance_rate * 100) * 0.4
+                                        + ((1 / (1 + avg_delay_min)) * 100) * 0.2,
+        })
+        input_df = prepare_for_prediction(row, extra_drop=["driver_delay_min"])
+        pred = models["driver_delay"].predict(input_df)[0]
+        proba = models["driver_delay"].predict_proba(input_df)[0][1]
+        if pred == 1:
+            st.warning(f"High risk of driver-caused delay (probability: {proba:.1%})")
+        else:
+            st.success(f"Low risk of driver-caused delay (probability: {proba:.1%})")
