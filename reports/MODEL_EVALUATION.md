@@ -2,10 +2,10 @@
 
 ## Ride Outcome Model
 
-- Accuracy: **65.75%**
-- AUC: **0.6004**
-- Best params: `{'classifier__max_depth': None, 'classifier__n_estimators': 150}`
-- Confusion matrix (Cancelled, Completed, Incomplete): `[[81, 204, 0], [122, 707, 2], [14, 69, 1]]`
+- Accuracy: **69.33%**
+- AUC: **0.5924**
+- Best params: `{'classifier__max_depth': None, 'classifier__n_estimators': 300}`
+- Confusion matrix (Cancelled, Completed, Incomplete): `[[3, 282, 0], [2, 829, 0], [0, 84, 0]]`
 - Benchmark (>= 85% accuracy): **BELOW**
 
 ## Fare Prediction Model
@@ -18,16 +18,16 @@
 
 ## Customer Cancellation Risk Model
 
-- Accuracy: **82.50%**
-- AUC: **0.6100**
-- Best params: `{'classifier__max_depth': None, 'classifier__n_estimators': 300}`
-- Confusion matrix (No Cancel, Cancel): `[[980, 21], [189, 10]]`
+- Accuracy: **83.42%**
+- AUC: **0.6141**
+- Best params: `{'classifier__max_depth': None, 'classifier__n_estimators': 150}`
+- Confusion matrix (No Cancel, Cancel): `[[1001, 0], [199, 0]]`
 - Benchmark (>= 85% accuracy): **BELOW**
 
 ## Driver Delay Prediction Model
 
-- Accuracy: **92.58%**
-- AUC: **0.8334**
+- Accuracy: **92.75%**
+- AUC: **0.8329**
 - Best params: `{'classifier__max_depth': None, 'classifier__n_estimators': 300}`
-- Confusion matrix (On Time, Delayed): `[[1095, 18], [71, 16]]`
+- Confusion matrix (On Time, Delayed): `[[1111, 2], [85, 2]]`
 - Benchmark (>= 85% accuracy): **MEETS**

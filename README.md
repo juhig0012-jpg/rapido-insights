@@ -5,6 +5,17 @@ forecasting for a ride-hailing platform, built as an end-to-end pipeline:
 data cleaning → feature engineering → four trained models → a SQL
 database → an EDA report → an interactive Streamlit dashboard.
 
+## What this project does
+
+Given a booking's details (pickup/drop, vehicle type, time, traffic,
+weather), predicts whether the ride will complete, cancel, or go
+incomplete; estimates the fare before the trip starts; and scores how
+likely the customer is to cancel or the driver is to run late - all from
+four separately-trained models you can query interactively. The dashboard
+also answers the "what's actually going on" questions (peak hours, which
+cities cancel more, which vehicle types are most reliable) without writing
+any code or SQL yourself.
+
 ## A note on the dataset
 
 This project ships two very different raw datasets, and only one of them
